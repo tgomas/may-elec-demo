@@ -1,0 +1,51 @@
+
+import fr.irit.smac.may.lib.interfaces.Do
+
+namespace fr.irit.smac.may.lib.components.connectors {
+
+	component Sequence2[I] {
+		provides input: I
+
+		requires first: I
+		requires second: I
+	}
+
+	component Sequence3[I] {
+		provides input: I
+
+		requires first: I
+		requires second: I
+		requires third: I
+	}
+
+	component Sequence4[I] {
+		provides input: I
+
+		requires first: I
+		requires second: I
+		requires third: I
+		requires forth: I
+	}
+
+	component CToggle[I] {
+		provides toggle: Do
+		provides output: I
+
+		requires first: I
+		requires second: I
+	}
+
+	component CTwice[I] {
+		provides input: I
+
+		requires output: I
+	}
+
+	component CAlternate[I] {
+		provides input: I
+
+		requires first: I
+		requires second: I
+	}
+
+}

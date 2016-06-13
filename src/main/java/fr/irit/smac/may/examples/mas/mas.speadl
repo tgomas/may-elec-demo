@@ -1,0 +1,82 @@
+
+import fr.irit.smac.may.examples.mas.behavior.Behavior
+
+import fr.irit.smac.may.examples.mas.logging.Logging
+
+import fr.irit.smac.may.examples.mas.logging.interfaces.LoggingControl
+
+import fr.irit.smac.may.examples.mas.messaging.Messaging
+
+import fr.irit.smac.may.examples.mas.monitoring.Monitoring
+
+import fr.irit.smac.may.examples.mas.monitoring.interfaces.MonitoringControl
+
+import fr.irit.smac.may.examples.mas.scheduling.MasTwoPhasesScheduling
+
+import fr.irit.smac.may.lib.components.scheduling.SchedulingControllerGUI
+
+import fr.irit.smac.may.lib.interfaces.Do
+
+import fr.irit.smac.may.lib.interfaces.Pull
+
+namespace fr.irit.smac.may.examples.mas {
+
+	ecosystem Mas[Msg] {
+		provides factory: AgentsFactory[Msg]
+		provides monitoring: MonitoringControl = monitor.control
+		provides logging: LoggingControl = log.control
+
+		// Scheduling
+		//		part scheduler: MasScheduling
+		part scheduler: MasTwoPhasesScheduling
+		part gui: SchedulingControllerGUI {
+			bind control to scheduler.control
+		}
+
+		// Messaging
+		part messaging: Messaging[Msg]
+
+		// Monitoring
+		part monitor: Monitoring[Double]
+
+		// Logging
+		part log: Logging
+
+		//
+		species Agent(id: String, behavior: Behavior[Msg]) {
+			provides id: Pull[String]
+
+			// Behavior
+			part behavior: Behavior[Msg] {
+				bind id to id
+				bind monitor to monitor.publisher
+				bind logger to logger.logger
+				bind messaging to messaging.messaging
+				bind die to stop
+				bind factory to eco factory
+			}
+
+			// Messaging
+			use messaging: messaging.AgentMessaging(id)
+
+			// Monitoring
+			use monitor: monitor.AgentMonitor(id)
+
+			// Logging
+			use logger: log.AgentLogger(id)
+
+			// Scheduling
+			//			use scheduler: scheduler.AgentScheduler {
+			//				bind perceive to behaviour.perceive
+			//				bind decideAndAct to behaviour.decideAndAct
+			//			}
+			use scheduler: scheduler.AgentScheduler {
+				bind firstPhase to behavior.perceive
+				bind secondPhase to behavior.decideAndAct
+			}
+
+			// Stop
+			provides stop: Do
+		}
+	}
+}

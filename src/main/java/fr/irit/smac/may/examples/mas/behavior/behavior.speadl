@@ -1,0 +1,30 @@
+
+import fr.irit.smac.may.lib.interfaces.Do
+
+import fr.irit.smac.may.lib.interfaces.Pull
+
+import fr.irit.smac.may.examples.mas.AgentsFactory
+
+import fr.irit.smac.may.examples.mas.messaging.interfaces.AsyncCommunicator
+
+import fr.irit.smac.may.examples.mas.monitoring.interfaces.SeriesPublish
+
+import org.slf4j.Logger
+
+namespace fr.irit.smac.may.examples.mas.behavior {
+	component Behavior[Msg] {
+		provides perceive: Do
+		provides decideAndAct: Do
+		requires id: Pull[String]
+
+		requires die: Do
+
+		requires messaging: AsyncCommunicator[Msg]
+
+		requires logger: Logger
+
+		requires monitor: SeriesPublish[Double]
+
+		requires factory: AgentsFactory[Msg]
+	}
+}

@@ -1,0 +1,146 @@
+
+import fr.irit.smac.may.examples.mas.scheduling.interfaces.SchedulingObserve
+
+import fr.irit.smac.may.lib.components.connectors.Sequence2
+
+import fr.irit.smac.may.lib.components.connectors.Sequence4
+
+import fr.irit.smac.may.lib.components.count.Counter
+
+import fr.irit.smac.may.lib.components.interactions.Notifier
+
+import fr.irit.smac.may.lib.components.scheduling.Clock
+
+import fr.irit.smac.may.lib.components.scheduling.ExecutorServiceWrapper
+
+import fr.irit.smac.may.lib.components.scheduling.Scheduler
+
+import fr.irit.smac.may.lib.components.scheduling.interfaces.AdvancedExecutor
+
+import fr.irit.smac.may.lib.components.scheduling.interfaces.SchedulingControl
+
+import fr.irit.smac.may.lib.interfaces.Do
+
+namespace fr.irit.smac.may.examples.mas.scheduling {
+
+	ecosystem Scheduling {
+		provides control: SchedulingControl
+		provides observe: SchedulingObserve
+
+		species AgentScheduler {
+			provides stop: Do
+			requires cycle: Do
+		}
+	}
+
+	ecosystem MasScheduling {
+		provides control: SchedulingControl = clock.control
+
+		//
+		part executorService: ExecutorServiceWrapper
+		part perceptionScheduler: Scheduler {
+			bind executor to executorService.executor
+		}
+		part decisionAndActionScheduler: Scheduler {
+			bind executor to executorService.executor
+		}
+
+		part clock: Clock {
+			bind tick to bothTick.input
+			bind sched to executorService.executor
+		}
+		part bothTick: Sequence2[Do] {
+			bind first to perceptionScheduler.tick
+			bind second to decisionAndActionScheduler.tick
+		}
+
+		species AgentScheduler {
+			provides stop: Do = bothStop.input
+			part bothStop: Sequence2[Do] {
+				bind first to scheduledPerception.stop
+				bind second to scheduledDecisionAndAction.stop
+			}
+			requires perceive: Do
+			requires decideAndAct: Do
+
+			use scheduledPerception: perceptionScheduler.Scheduled {
+				bind cycle to perceive
+			}
+			use scheduledDecisionAndAction: decisionAndActionScheduler.Scheduled {
+				bind cycle to decideAndAct
+			}
+		}
+
+	}
+
+	ecosystem MasTwoPhasesScheduling {
+		provides observe: SchedulingObserve
+		provides control: SchedulingControl = clock.control
+
+		part cycleNotification: Notifier[Do]
+		part cycleCounter: Counter
+
+		//
+		part executorService: ExecutorServiceWrapper
+
+		part clock: Clock {
+			bind sched to executorService.executor
+			bind tick to ticker.input
+		}
+		part ticker: Sequence4[Do] {
+			bind first to cycleCounter.increment
+			bind second to cycleNotification.notification
+			bind third to firstScheduling.tick
+			bind forth to secondScheduling.tick
+		}
+
+		part firstScheduling: PhaseScheduling {
+			bind executor to executorService.executor
+		}
+		part secondScheduling: PhaseScheduling {
+			bind executor to executorService.executor
+		}
+
+		species AgentScheduler {
+			provides stop: Do = stopper.input
+
+			requires firstPhase: Do
+			requires secondPhase: Do
+
+			use firstScheduled: firstScheduling.AgentPhaseScheduler {
+				bind cycle to firstPhase
+			}
+			use secondScheduled: secondScheduling.AgentPhaseScheduler {
+				bind cycle to secondPhase
+			}
+
+			part stopper: Sequence2[Do] {
+				bind first to firstScheduled.stop
+				bind second to secondScheduled.stop
+			}
+		}
+
+	}
+
+	ecosystem PhaseScheduling {
+		provides tick: Do = scheduler.tick
+
+		requires executor: AdvancedExecutor
+
+		part scheduler: Scheduler {
+			bind executor to executor
+		}
+
+		species AgentPhaseScheduler {
+			provides stop: Do = scheduled.stop
+
+			requires cycle: Do
+
+			use scheduled: scheduler.Scheduled {
+				bind cycle to cycle
+			}
+		}
+
+	}
+
+}

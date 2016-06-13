@@ -1,0 +1,87 @@
+
+import fr.irit.smac.may.lib.interfaces.Do
+
+import fr.irit.smac.may.lib.interfaces.Push
+
+import fr.irit.smac.may.examples.mas.AgentsFactory
+
+namespace fr.irit.smac.may.lib.adaptive {
+
+/**
+	 * An adaptive Behavior
+	 */
+	component AdaptiveBehavior[K, M] {
+	// nominal behavior
+		part nominal: Nominal[K, M] {
+			bind knowledge to knowledge
+			bind send to send
+		}
+		// tuning behavior
+		part tunning: Tuning[K, M] {
+			bind knowledge to knowledge
+			bind send to send
+		}
+		// reorganization behavior
+		part reorganization: Reorganization[K, M] {
+			bind knowledge to knowledge
+			bind send to send
+			bind die to die
+			bind factory to factory
+		}
+
+		// to send messages
+		requires send: Push[M]
+		// to access the knowledge
+		requires knowledge: K
+		// to kill himself
+		requires die: Do
+		// to create new agent
+		requires factory: AgentsFactory[M]
+	}
+
+	/**
+	 * A component for non-adaptive behavior of the agent.
+	 * It is also responsible to inform the neighborhood of any change.
+	 * K is the type of Knowledge of the agent.
+	 * M is the type of sent messages.
+	 */
+	component Nominal[K, M] {
+		provides behave: Do
+		// to send messages
+		requires send: Push[M]
+		// to access the knowledge
+		requires knowledge: K
+	}
+
+	/**
+	 * A behavior component to tune characteristics of the agent.
+	 * It is also responsible to inform the neighborhood of any change.
+	 * K is the type of Knowledge of the agent.
+	 * M is the type of sent messages.
+	 */
+	component Tuning[K, M] {
+		provides behave: Do
+		// to send messages
+		requires send: Push[M]
+		// to access the knowledge
+		requires knowledge: K
+	}
+
+	/**
+	 * A behavior component to reorganize the system.
+	 * It is also responsible to inform the neighborhood of any change.
+	 * K is the type of Knowledge of the agent.
+	 * M is the type of sent messages.
+	 */
+	component Reorganization[K, M] {
+		provides behave: Do
+		// to send messages
+		requires send: Push[M]
+		// to kill himself
+		requires die: Do
+		// to create new agent
+		requires factory: AgentsFactory[M]
+		// to access the knowledge
+		requires knowledge: K
+	}
+}

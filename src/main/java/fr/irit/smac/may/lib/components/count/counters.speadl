@@ -1,0 +1,16 @@
+
+import fr.irit.smac.may.lib.interfaces.Do
+
+import fr.irit.smac.may.lib.interfaces.Pull
+
+namespace fr.irit.smac.may.lib.components.count {
+/**
+	 * A simple counter
+	 */
+	component Counter {
+		provides increment: Do
+		provides decrement: Do
+		provides getCount: Pull[Integer]
+		provides reset: Do
+	}
+}

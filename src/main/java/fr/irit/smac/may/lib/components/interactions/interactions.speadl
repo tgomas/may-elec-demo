@@ -1,0 +1,15 @@
+
+import fr.irit.smac.may.lib.components.connectors.interfaces.Subscription
+
+namespace fr.irit.smac.may.lib.components.interactions {
+
+/**
+	 * A simple notifier component based on observer pattern
+	 */
+	component Notifier[I] {
+	// observable update notification
+		provides notification: I
+		// observer subscription
+		provides subscribtion: Subscription[I]
+	}
+}

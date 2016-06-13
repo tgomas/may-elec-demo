@@ -1,0 +1,16 @@
+import fr.irit.smac.may.lib.interfaces.Do
+import fr.irit.smac.may.examples.mas.monitoring.interfaces.MonitoringControl
+import fr.irit.smac.may.examples.mas.monitoring.interfaces.SeriesPublish
+
+namespace fr.irit.smac.may.examples.mas.monitoring {
+
+	ecosystem Monitoring[State] {
+		provides control: MonitoringControl
+
+		species AgentMonitor(id: String) {
+			provides publisher: SeriesPublish[State]
+			provides stop: Do
+		}
+	}
+
+}

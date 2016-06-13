@@ -1,0 +1,23 @@
+
+import fr.irit.smac.may.lib.interfaces.Do
+
+import fr.irit.smac.may.lib.interfaces.Push
+
+import fr.irit.smac.may.examples.mas.logging.interfaces.LoggingControl
+
+import org.slf4j.Logger
+
+namespace fr.irit.smac.may.examples.mas.logging {
+
+	ecosystem Logging {
+		provides control: LoggingControl
+		provides cycleNotification: Push[Integer]
+
+		species AgentLogger(id: String) {
+			provides logger: Logger
+			provides stop: Do
+		}
+
+	}
+
+}

@@ -1,0 +1,36 @@
+
+import fr.irit.smac.may.lib.components.collections.Queue
+
+import fr.irit.smac.may.lib.components.interactions.MapRefAsyncReceiver
+
+import fr.irit.smac.may.lib.interfaces.Do
+
+import fr.irit.smac.may.examples.mas.messaging.interfaces.AsyncCommunicator
+
+import fr.irit.smac.may.lib.components.interactions.Broadcast
+
+namespace fr.irit.smac.may.examples.mas.messaging {
+
+	ecosystem Messaging[Msg] {
+	// Communication
+		part receiver: MapRefAsyncReceiver[Msg, String]
+		part broadcast: Broadcast[Msg, String] {
+			bind send to receiver.send
+		}
+
+		//
+		species AgentMessaging(id: String) {
+			provides messaging: AsyncCommunicator[Msg]
+			provides stop: Do = receiver.stop
+
+			part mailBox: Queue[Msg]
+			use receiver: receiver.Receiver(id) {
+				bind put to mailBox.put
+			}
+			use sender: receiver.Sender
+			use broadcaster: broadcast.Broadcaster
+
+		}
+	}
+
+}
